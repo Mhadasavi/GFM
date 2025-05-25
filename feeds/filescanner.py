@@ -17,10 +17,14 @@ class FileScanner:
             for file in files:
                 file_path = os.path.join(root, file)
                 stats = os.stat(file_path)
+                size = FileMetaDataUtils.convert_size(stats.st_size)
+                raw_size = size[:-2]
+                size_unit = size[-2:]
                 metadata = FileMetaData(
                     file,
                     file_path,
-                    FileMetaDataUtils.convert_size(stats.st_size),
+                    raw_size,
+                    size_unit,
                     datetime.fromtimestamp(stats.st_ctime).strftime("%Y-%m-%d %H:%M:%S"),
                     datetime.fromtimestamp(stats.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
                     datetime.fromtimestamp(stats.st_atime).strftime("%Y-%m-%d %H:%M:%S")

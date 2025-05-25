@@ -1,0 +1,18 @@
+1. Get Metadata from files and store in csv file.
+    Done
+
+2. Implement elapsed time and input of directory from user.
+    Done
+
+3. Adding New Path removes the old content from the csv file. Update the logic to keep the old content also.
+    keep historical data and do incremental updates:
+        * Create a master CSV (e.g., file_metadata_master.csv)
+        * During each run, create a new metadata CSV (e.g., file_metadata_2025_05_25.csv)
+        * Use a script to merge the new one into the master, avoiding duplicates.
+        * Merging strategy:
+            - Consider (file_path + modified_date) as the unique key to deduplicate entries.
+            - Or hash the file_path + size_bytes + modified_date as a dedup key.
+
+Optional
+1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
+2. Use Sql Db to dump all csvs into tables.
