@@ -1,3 +1,4 @@
+Module 1
 1. Get Metadata from files and store in csv file.
     Done
 
@@ -16,3 +17,21 @@
 Optional
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
 2. Use Sql Db to dump all csvs into tables.
+
+Module 2
+1. Establish connection from GDrive.
+2. Get Metadata of drive's files and store in a new csv file.
+3. Implement step 2 & 3 of module 1.
+4. Compare both the csvs and add the duplicates into the new csv file.
+5. Delete the duplicates from drive.
+6. Visulalize the data.
+
+Module 3
+1. Create a data pipeline with following tools -
+    - Pyspark
+    - Delta tables
+    - Airflow
+    - and other required modern tools.
+
+Note - Test Module 1 & 2 on limited files and trigger the flow once module 3 completed. So that we can leverage everything and
+monitor everything.
