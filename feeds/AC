@@ -17,8 +17,9 @@ Module 1
 Optional
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
 2. Use Sql Db to dump all csvs into tables.
+3. Add pre-commit hook and requirement.txt - Done
 
-Module 22*
+Module 2
 1. Establish connection from GDrive.
 2. Get Metadata of drive's files and store in a new csv file.
 3. Implement step 2 & 3 of module 1.

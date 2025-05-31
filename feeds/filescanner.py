@@ -28,9 +28,15 @@ class FileScanner:
                     file_path,
                     raw_size,
                     size_unit,
-                    datetime.fromtimestamp(stats.st_ctime).strftime("%Y-%m-%d %H:%M:%S"),
-                    datetime.fromtimestamp(stats.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
-                    datetime.fromtimestamp(stats.st_atime).strftime("%Y-%m-%d %H:%M:%S")
+                    datetime.fromtimestamp(stats.st_ctime).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                    datetime.fromtimestamp(stats.st_mtime).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
+                    datetime.fromtimestamp(stats.st_atime).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                 )
                 metadata_list.append(metadata)
         return file_type, metadata_list

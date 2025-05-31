@@ -6,14 +6,14 @@ from feeds.metadatawriter import MetaDataWriter
 
 
 class CSVMetaDataWriter(MetaDataWriter):
-    def write(self, data:List[FileMetaData], output_path: str):
+    def write(self, data: List[FileMetaData], output_path: str):
         if not data:
             print("No data to write.")
             return
 
-        with open(output_path, "a", newline = "", encoding = "utf-8") as f:
+        with open(output_path, "a", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=data[0].to_dict().keys())
             writer.writeheader()
             for item in data:
                 writer.writerow(item.to_dict())
-        print(f'Metadata written to : {output_path}')
+        print(f"Metadata written to : {output_path}")
