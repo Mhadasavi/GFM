@@ -11,7 +11,7 @@ class CSVMetaDataWriter(MetaDataWriter):
             print("No data to write.")
             return
 
-        with open(output_path, "w", newline = "", encoding = "utf-8") as f:
+        with open(output_path, "a", newline = "", encoding = "utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=data[0].to_dict().keys())
             writer.writeheader()
             for item in data:
