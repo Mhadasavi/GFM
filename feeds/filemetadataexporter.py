@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     file_type, raw_metadata = exporter.meta_data_writer()
     file_name = f"file_metadata_{file_type}_{year}.csv"
-    output_csv = os.path.join("F:\\", file_name)
+    output_csv = os.path.join("F:\\GFM Data\\", file_name)
 
     exporter.export(raw_metadata, output_csv)
 
