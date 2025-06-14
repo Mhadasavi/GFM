@@ -9,10 +9,11 @@ Module 1
     keep historical data and do incremental updates:
         * During each run, create a new metadata CSV (e.g., file_metadata_img_2025.csv, file_metadata_videos_2025.csv)
         * Create a master CSV (e.g., file_metadata_master.csv)
-        * Use a script to merge the new one into the master, avoiding duplicates.
-        * Merging strategy:
-            - Consider (file_path + modified_date) as the unique key to deduplicate entries.
-            - Or hash the file_path + size_bytes + modified_date as a dedup key.
+            * Use a script to merge the new one into the master, avoiding duplicates.
+            * Merging strategy: (Optional, currently merging based on filename)
+                - Consider (file_path + modified_date) as the unique key to deduplicate entries.
+                - Or hash the file_path + size_bytes + modified_date as a dedup key.
+    Done
 
 Optional
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.

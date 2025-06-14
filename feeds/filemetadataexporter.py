@@ -1,14 +1,11 @@
 import logging
 import os.path
 import time
-from importlib.metadata import metadata
-from os import write
-from shutil import which
 
+from abstract.filemetadatautils import FileMetaDataUtils
+from abstract.metadatawriter import MetaDataWriter
 from feeds.csvmetadatawriter import CSVMetaDataWriter
-from feeds.filemetadatautils import FileMetaDataUtils
 from feeds.filescanner import FileScanner
-from feeds.metadatawriter import MetaDataWriter
 
 
 class FileMetaDataExporter:
@@ -46,7 +43,7 @@ if __name__ == "__main__":
 
     file_type, raw_metadata = exporter.meta_data_writer()
     file_name = f"file_metadata_{file_type}_{year}.csv"
-    output_csv = os.path.join("F:\\GFM Data\\", file_name)
+    output_csv = os.path.join("F:\\GFM Data\\metadata\\", file_name)
 
     exporter.export(raw_metadata, output_csv)
 
