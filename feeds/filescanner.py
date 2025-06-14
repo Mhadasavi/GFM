@@ -1,10 +1,8 @@
 import os
 from datetime import datetime
-from lib2to3.pytree import convert
-from typing import List, Tuple
 
-from feeds.filemetadata import FileMetaData
-from feeds.filemetadatautils import FileMetaDataUtils
+from abstract.filemetadata import FileMetaData
+from abstract.filemetadatautils import FileMetaDataUtils
 
 
 class FileScanner:

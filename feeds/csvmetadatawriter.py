@@ -2,8 +2,8 @@ import csv
 import os
 from typing import List
 
-from feeds.filemetadata import FileMetaData
-from feeds.metadatawriter import MetaDataWriter
+from abstract.filemetadata import FileMetaData
+from abstract.metadatawriter import MetaDataWriter
 
 
 class CSVMetaDataWriter(MetaDataWriter):

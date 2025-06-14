@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from feeds.filemetadata import FileMetaData
+from abstract.filemetadata import FileMetaData
 
 
 class MetaDataWriter(ABC):
     @abstractmethod
-    def write(self, data: List[FileMetaData], output_path: str):
+    def write(self, data: List[FileMetaData] | dict, output_path: str):
         pass
