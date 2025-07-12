@@ -17,6 +17,7 @@ Module 1
 
 Optional
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
+    Done
 2. Use Sql Db to dump all csvs into tables.
     Done
 3. Add pre-commit hook and requirement.txt

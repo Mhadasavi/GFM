@@ -21,3 +21,4 @@ class MongoDbWriter:
             collection.update_one(
                 {"meta_row_id": record["meta_row_id"]}, {"$set": record}, upsert=True
             )
+        self.logger.info("Data successfully written to DB.")
