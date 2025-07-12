@@ -31,10 +31,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    start_time = time.time()
     folder_dir = input("enter the directory :")
     folder = os.path.expanduser(folder_dir)
 
+    start_time = time.time()
     year = FileMetaDataUtils.get_year_from_path(folder)
     if year:
         logger.info(f"Year extracted from '{folder}': {year}")

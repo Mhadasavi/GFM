@@ -17,7 +17,9 @@ Module 1
 
 Optional
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
+    Done
 2. Use Sql Db to dump all csvs into tables.
+    Done
 3. Add pre-commit hook and requirement.txt
     Done
 4. Dont Append header if already exist during 2nd run
@@ -25,6 +27,8 @@ Optional
 5. Throw file already open exception if file opens during writing.
     Done
 6. Add index in the collection of mongodb.
+    Done
+7. Save logs to txt file
 
 Module 2
 1. Establish connection from GDrive.

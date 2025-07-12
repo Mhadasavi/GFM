@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import re
 
@@ -42,3 +43,8 @@ class FileMetaDataUtils:
             return year
         else:
             return None
+
+    @staticmethod
+    def get_file_hash(fields: list[str]) -> str:
+        hash_input = "|".join(fields)
+        return hashlib.sha256(hash_input.encode("utf-8")).hexdigest()
