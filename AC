@@ -24,6 +24,7 @@ Optional
     Done
 5. Throw file already open exception if file opens during writing.
     Done
+6. Add index in the collection of mongodb.
 
 Module 2
 1. Establish connection from GDrive.

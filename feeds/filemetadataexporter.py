@@ -11,11 +11,11 @@ from feeds.mongodbWriter import MongoDbWriter
 
 class FileMetaDataExporter:
     def __init__(
-        self, scanner: FileScanner, writer: MetaDataWriter, dbwriter: MongoDbWriter
+        self, scanner: FileScanner, writer: MetaDataWriter, db_writer: MongoDbWriter
     ):
         self.scanner = scanner
         self.writer = writer
-        self.dbwriter = dbwriter
+        self.db_writer = db_writer
 
     def meta_data_writer(self):
         return self.scanner.scan()
@@ -23,8 +23,8 @@ class FileMetaDataExporter:
     def export(self, raw_metadata, output_path: str):
         self.writer.write(raw_metadata, output_path)
 
-    def exportToDb(self, input_path: str):
-        self.dbwriter.write(input_path)
+    def export_to_db(self, input_path: str, collection_name: str):
+        self.db_writer.write(input_path, collection_name)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     exporter.export(raw_metadata, output_csv)
 
-    exporter.exportToDb(output_csv)
+    exporter.export_to_db(output_csv, "metaDataCollection")
 
     end_time = time.time()
     elapsed_time = end_time - start_time
