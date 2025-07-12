@@ -12,6 +12,10 @@ class FileScanner:
     def scan(self) -> tuple[str | None, list[FileMetaData]]:
         metadata_list = []
         file_type = None
+
+        def format_time(ts):
+            return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+
         for root, _, files in os.walk(self.folder_path):
             for file in files:
                 if file_type is None:
@@ -21,20 +25,28 @@ class FileScanner:
                 size = FileMetaDataUtils.convert_size(stats.st_size)
                 raw_size = size[:-2]
                 size_unit = size[-2:]
+                created = format_time(stats.st_ctime)
+                modified = format_time(stats.st_mtime)
+                accessed = format_time(stats.st_atime)
+                hash_fields = [
+                    file,
+                    file_path,
+                    raw_size,
+                    size_unit,
+                    created,
+                    modified,
+                    accessed,
+                ]
+                meta_row_id = FileMetaDataUtils.get_file_hash(hash_fields)
                 metadata = FileMetaData(
                     file,
                     file_path,
                     raw_size,
                     size_unit,
-                    datetime.fromtimestamp(stats.st_ctime).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                    datetime.fromtimestamp(stats.st_mtime).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                    datetime.fromtimestamp(stats.st_atime).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
+                    created,
+                    modified,
+                    accessed,
+                    meta_row_id,
                 )
                 metadata_list.append(metadata)
         return file_type, metadata_list

@@ -11,6 +11,7 @@ class FileMetaData:
         created: str,
         modified: str,
         accessed: str,
+        meta_row_id: str,
     ):
         self.file_name = file_name
         self.path = path
@@ -19,6 +20,7 @@ class FileMetaData:
         self.created = created
         self.modified = modified
         self.accessed = accessed
+        self.meta_row_id = meta_row_id
 
     def to_dict(self) -> Dict:
         return {
@@ -29,4 +31,5 @@ class FileMetaData:
             "created": self.created,
             "modified": self.modified,
             "accessed": self.accessed,
+            "meta_row_id": self.meta_row_id,
         }
