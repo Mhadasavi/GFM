@@ -15,7 +15,7 @@ Module 1
                 - Or hash the file_path + size_bytes + modified_date as a dedup key.
     Done
 
-Optional
+Optional to Module 1
 1. Implement meta_row_id, log start and end time as elapsed time is not accurate.
     Done
 2. Use Sql Db to dump all csvs into tables.
@@ -29,6 +29,7 @@ Optional
 6. Add index in the collection of mongodb.
     Done
 7. Save logs to txt file
+8. Configure https://github.com/marketplace/actions/ai-pr-review-action (need more research)
 
 Module 2
 1. Establish connection from GDrive.
