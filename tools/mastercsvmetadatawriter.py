@@ -5,6 +5,7 @@ from abc import ABC
 from typing import List
 
 from idlelib.iomenu import encoding
+from pandas import DataFrame
 
 from abstract.filemetadata import FileMetaData
 from abstract.metadatawriter import MetaDataWriter
@@ -30,6 +31,22 @@ class MasterCsvMetaDataWriter(MetaDataWriter):
                 for item in data.values():
                     writer.writerow(item)
             self.logger.info(f"Metadata written to : {output_path}")
+        except PermissionError:
+            self.logger.info(
+                f"Failed to write file. Please close the file and try again."
+            )
+
+    def write_df_to_csv(self, metadata_df: DataFrame, output_path: str):
+        if metadata_df.empty:
+            self.logger.info("No data to write in metadata_df")
+            return
+        try:
+            # Ensure output directory exists
+            output_dir = os.path.dirname(output_path)
+            if output_dir and not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
+            metadata_df.to_csv(output_path, index=False)
+            self.logger.info(f"metadata_df written to : {output_path}")
         except PermissionError:
             self.logger.info(
                 f"Failed to write file. Please close the file and try again."
