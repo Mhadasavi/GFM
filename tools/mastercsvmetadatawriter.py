@@ -41,6 +41,10 @@ class MasterCsvMetaDataWriter(MetaDataWriter):
             self.logger.info("No data to write in metadata_df")
             return
         try:
+            # Ensure output directory exists
+            output_dir = os.path.dirname(output_path)
+            if output_dir and not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
             metadata_df.to_csv(output_path, index=False)
             self.logger.info(f"metadata_df written to : {output_path}")
         except PermissionError:
