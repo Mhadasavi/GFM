@@ -1,15 +1,30 @@
-from typing import Dict, List
+import logging
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from abstract.filemetadatautils import FileMetaDataUtils
+from fetchers import Config
+from fetchers.checkpointmanager import CheckpointManager
+from fetchers.csvchunkwriter import CSVChunkWriter
+from fetchers.drivefetcher import DriveFetcher
+from fetchers.ratelimiter import RateLimiter
 
 
 class DriveMetaDataScanner:
     def __init__(self, credentials: Credentials):
         self.service = build("drive", "v3", credentials=credentials)
+
+    # def __init__(self, credentials: Credentials, cfg: Config, service, logger: logging.Logger):
+    #     self.logger = logger
+    #     self.service = build("drive", "v3", credentials=credentials)
+    #     self.cfg = cfg
+    #     self.cp = CheckpointManager(cfg, logger)
+    #     self.writer = CSVChunkWriter(cfg, logger)
+    #     self.rate = RateLimiter(cfg.quota_sleep_sec)
+    #     self.fetcher = DriveFetcher(service, cfg, logger, self.rate)
 
     @staticmethod
     def extract_size_and_unit(size):
@@ -17,6 +32,39 @@ class DriveMetaDataScanner:
             return 0.00, ""
         size_str = FileMetaDataUtils.convert_size(int(size))
         return float(size_str[:-2]), size_str[-2:]
+
+    # def _discover_resume_points(self) -> Tuple[Optional[str], Optional[str], int]:
+    #     cp = self.cp.load()
+    #     last_id = cp.get("last_id")
+    #     page_token = cp.get("page_token")
+    #     batch_index = cp.get("batch_index", self.writer.get_batch_index())
+    #
+    #     # If appending to an existing file without checkpoint, try last line for last_id
+    #     if self.cfg.resume and not last_id and self.cfg.append_skip_existing:
+    #         # read the *current* final file's last line
+    #         current_final = self.writer.get_current_output_path()
+    #         last_line = FileMetaDataUtils.read_last_line_text(current_final)
+    #         if last_line:
+    #             parsed = FileMetaDataUtils.extract_first_column_from_csv_line(last_line)
+    #             # avoid treating header as ID
+    #             if parsed and parsed != "id":
+    #                 last_id = parsed
+    #                 self.logger.info(f"Derived last_id from existing CSV: {last_id}")
+    #
+    #     return last_id, page_token, batch_index
+
+    # def _skip_until_last_id(self, files: List[Dict], last_id: str) -> Tuple[List[Dict], bool]:
+    #     """
+    #     Skip items until last_id encountered. Returns (remaining_files, found).
+    #     """
+    #     for i, f in enumerate(files):
+    #         if f.get("id") == last_id:
+    #             return files[i + 1 :], True
+    #     return files, False
+
+    # def _save_checkpoint_safely(self, last_id: Optional[str], page_token: Optional[str]):
+    #     # Include the current batch index so rotation persists across restarts
+    #     self.cp.save(last_id=last_id, page_token=page_token, batch_index=self.writer.get_batch_index())
 
     def scan(self):
         all_files = []
@@ -40,7 +88,7 @@ class DriveMetaDataScanner:
 
             # Pagination
             page_token = response.get("nextPageToken")
-            page_token = None
+            page_token = None  # remove this line once everything works as expected..............................
             if not page_token:
                 break
         df = pd.DataFrame(all_files)
