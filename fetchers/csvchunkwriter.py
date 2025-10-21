@@ -45,43 +45,53 @@ class CSVChunkWriter:
     def _safe_write_dataframe(self, df: pd.DataFrame):
         """Write df to tmp file then append/concat to final atomically."""
         # Decide header logic
-        header = self.cfg.write_header and (not self.header_written_in_this_file)
-
+        # header = self.cfg.write_header and (not self.header_written_in_this_file)
+        # header = True
+        header = not os.path.exists(self.final_path)  # Write header only once
+        os.makedirs(os.path.dirname(self.final_path), exist_ok=True)
+        try:
+            with open(self.final_path, "a", newline="", encoding="utf-8") as fh:
+                df.to_csv(fh, index=False, header=header)
+            self.logger.info(f"Wrote {len(df)} rows to {self.final_path}")
+        except PermissionError:
+            self.logger.warning("File is open. Retrying in 5s...")
+            time.sleep(5)
+            self._safe_write_dataframe(df)
         # Write append directly to final via pandas in stream mode, but with .tmp safety:
         # Strategy: write chunk to a small temp-chunk file, then append to final.
         # This avoids partial line issues if process dies mid-write.
-        chunk_tmp = (
-            self.final_path + f".chunk{int(time.time()*1000)}{self.cfg.temp_suffix}"
-        )
-        try:
-            if self.cfg.compression == "gzip":
-                with gzip.open(chunk_tmp, "at", newline="") as fh:
-                    df.to_csv(fh, index=False, header=header)
-            else:
-                with open(chunk_tmp, "a", newline="", encoding="utf-8") as fh:
-                    df.to_csv(fh, index=False, header=header)
-
-            # Append/concatenate chunk_tmp to final via OS append
-            with open(chunk_tmp, "rb") as src, open(self.tmp_path, "ab") as dst:
-                shutil.copyfileobj(src, dst)
-
-            # Atomic move of tmp to final
-            os.replace(self.tmp_path, self.final_path)
-
-            self.header_written_in_this_file = True
-        finally:
-            # cleanup
-            if os.path.exists(chunk_tmp):
-                try:
-                    os.remove(chunk_tmp)
-                except Exception:
-                    pass
-            if os.path.exists(self.tmp_path):
-                # In normal operation tmp_path was moved. If still present, clean it.
-                try:
-                    os.remove(self.tmp_path)
-                except Exception:
-                    pass
+        # chunk_tmp = (
+        #     self.final_path + f".chunk{int(time.time()*1000)}{self.cfg.temp_suffix}"
+        # )
+        # try:
+        #     if self.cfg.compression == "gzip":
+        #         with gzip.open(chunk_tmp, "at", newline="") as fh:
+        #             df.to_csv(fh, index=False, header=header)
+        #     else:
+        #         with open(chunk_tmp, "a", newline="", encoding="utf-8") as fh:
+        #             df.to_csv(fh, index=False, header=header)
+        #
+        #     # Append/concatenate chunk_tmp to final via OS append
+        #     with open(chunk_tmp, "rb") as src, open(self.tmp_path, "ab") as dst:
+        #         shutil.copyfileobj(src, dst)
+        #
+        #     # Atomic move of tmp to final
+        #     os.replace(self.tmp_path, self.final_path)
+        #
+        #     self.header_written_in_this_file = True
+        # finally:
+        #     # cleanup
+        #     if os.path.exists(chunk_tmp):
+        #         try:
+        #             os.remove(chunk_tmp)
+        #         except Exception:
+        #             pass
+        #     if os.path.exists(self.tmp_path):
+        #         # In normal operation tmp_path was moved. If still present, clean it.
+        #         try:
+        #             os.remove(self.tmp_path)
+        #         except Exception:
+        #             pass
 
     def write_chunk(self, rows: List[Dict]):
         if not rows:

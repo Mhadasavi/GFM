@@ -57,14 +57,14 @@ class DriveMetaDataExporter:
         self.credentials = credentials
         self.fetcher = DriveFetcher(credentials, cfg, logger, self.rate)
 
-    def meta_data_writer(self):
-        return self.scanner.scan()
+    # def meta_data_writer(self):
+    #     return self.scanner.scan()
 
-    def export(self, drive_metadata_df: DataFrame, output_path: str):
-        self.meta_writer.write_df_to_csv(drive_metadata_df, output_path)
+    # def export(self, drive_metadata_df: DataFrame, output_path: str):
+    #     self.meta_writer.write_df_to_csv(drive_metadata_df, output_path)
 
-    def export_to_db(self, input_path: str, collection_name: str):
-        self.db_writer.write(input_path, collection_name)
+    # def export_to_db(self, input_path: str, collection_name: str):
+    #     self.db_writer.write(input_path, collection_name)
 
     def _discover_resume_points(self) -> Tuple[Optional[str], Optional[str], int]:
         cp = self.cp.load()
@@ -173,8 +173,7 @@ def bootstrap_logger(config: DownloaderConfig):
         filename=config.log_path,
         filemode="w",
     )
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
@@ -183,7 +182,6 @@ def bootstrap_logger(config: DownloaderConfig):
     # tell the handler to use this format
     console.setFormatter(formatter)
     # add the handler to the root logger
-    # logging.getLogger('').addHandler(console)
     logging.getLogger("").addHandler(console)
 
 
