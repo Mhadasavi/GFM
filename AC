@@ -33,8 +33,11 @@ Optional to Module 1
 
 Module 2
 1. Establish connection from GDrive.
+    Done
 2. Get Metadata of drive's files and store in a new csv file.
+    Done
 3. Implement step 2 & 3 of module 1.
+    Done
 4. Compare both the csvs and add the duplicates into the new csv file.
 5. Delete the duplicates from drive.
 6. Visulalize the data.
@@ -48,3 +51,7 @@ Module 3
 
 Note - Test Module 1 & 2 on limited files and trigger the flow once module 3 completed. So that we can leverage everything and
 monitor everything.
+
+* Current issues -
+1. header is not working in current implementation.
+2. custom columns need to add.
