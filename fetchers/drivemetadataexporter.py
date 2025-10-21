@@ -164,6 +164,45 @@ class DriveMetaDataExporter:
 
         self.logger.info("Download complete.")
 
+        # -----------------------------------------------------
+        # ✅ Verification Logic
+        # -----------------------------------------------------
+
+    def verify(self):
+        self.logger.info("Starting verification process...")
+
+        api_ids = self.fetcher.fetch_all_ids()
+        csv_ids = self.fetcher.read_csv_ids()
+
+        missing, extra = self._compare_ids(api_ids, csv_ids)
+
+        self.logger.info(f"Total Drive items found via API: {len(api_ids)}")
+        self.logger.info(f"Total rows in CSV: {len(csv_ids)}")
+
+        if missing:
+            self.logger.warning(f"⚠️ Missing {len(missing)} files not present in CSV.")
+            self._write_diff_to_file(self.cfg.missing_ids, missing)
+
+        if extra:
+            self.logger.warning(f"⚠️ {len(extra)} extra rows in CSV not found in Drive.")
+            self._write_diff_to_file(self.cfg.extra_ids, extra)
+
+        if not missing and not extra:
+            self.logger.info("✅ Verification successful — all files accounted for.")
+
+    # @staticmethod
+    def _compare_ids(self, api_ids, csv_ids):
+        missing = api_ids - csv_ids
+        extra = csv_ids - api_ids
+        return missing, extra
+
+    def _write_diff_to_file(self, filename, diff_set):
+        path = os.path.join(self.cfg.output_dir, filename)
+        with open(path, "w") as f:
+            for i in diff_set:
+                f.write(f"{i}\n")
+        self.logger.info(f"Wrote diff file: {path}")
+
 
 def bootstrap_logger(config: DownloaderConfig):
     logging.basicConfig(
@@ -207,6 +246,7 @@ if __name__ == "__main__":
 
     # exporter.export(drive_metadata_df, output_csv)
     exporter.run()
+    exporter.verify()
     # exporter.export_to_db(output_csv, "driveMetaDataCollection")
 
     end_time = time.time()

@@ -17,6 +17,8 @@ class DownloaderConfig:
     write_header: bool = True  # header only for first chunk of the (rotated) file
     temp_suffix: str = ".tmp"
     checkpoint_filename: str = ".checkpoint.json"
+    missing_ids: str = "missing_ids.txt"
+    extra_ids: str = "extra_ids.txt"
 
     # Naming / rotation
     daily_naming: bool = True  # include YYYY-MM-DD in file name
