@@ -2,8 +2,10 @@
 # Drive Fetcher (single responsibility: paging)
 # -----------------------------
 import logging
+import os
 from typing import Dict, Iterable, Optional
 
+import pandas as pd
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
@@ -36,6 +38,18 @@ class DriveFetcher:
         resp = req.execute()
         return resp
 
+    def fetch_ids_from_page(self, page_token: Optional[str]) -> Dict:
+        req = self.service.files().list(
+            pageSize=self.cfg.batch_size,
+            fields="nextPageToken, files(id)",
+            pageToken=page_token,
+            includeItemsFromAllDrives=True,
+            supportsAllDrives=True,
+        )
+        self.logger.info("fetch_ids_from_page invoked.")
+        resp = req.execute()
+        return resp
+
     def iterate_pages(self, start_token: Optional[str]) -> Iterable[Dict]:
         token = start_token
         while True:
@@ -45,3 +59,35 @@ class DriveFetcher:
             if not token:
                 break
             self.rate.sleep()
+
+    def fetch_all_ids(self):
+        """Fetch all file IDs via API — lightweight pagination."""
+        ids = set()
+        page_token = None
+
+        while True:
+            response = self.fetch_ids_from_page(page_token)
+
+            for f in response.get("files", []):
+                ids.add(f["id"])
+
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+
+        self.logger.info(f"Fetched {len(ids)} total file IDs from Drive.")
+        return ids
+
+    def read_csv_ids(self):
+        """Read unique IDs from all CSV batches."""
+        ids = set()
+        for file in os.listdir(self.cfg.output_dir):
+            if file.endswith(".csv"):
+                try:
+                    df = pd.read_csv(
+                        os.path.join(self.cfg.output_dir, file), usecols=["id"]
+                    )
+                    ids.update(df["id"].dropna().astype(str).unique())
+                except Exception as e:
+                    self.logger.warning(f"Skipping {file}: {e}")
+        return ids
