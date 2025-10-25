@@ -29,6 +29,7 @@ Optional to Module 1
 6. Add index in the collection of mongodb.
     Done
 7. Save logs to txt file
+    Done
 8. Configure https://github.com/marketplace/actions/ai-pr-review-action (need more research)
 9. Store duplicate records in a file (explore MasterFileScanner)
 10. Maintain Created date datetype.
@@ -47,7 +48,7 @@ Module 2
 
 5. Delete the duplicates from drive.
 
-6. Visulalize the data.
+6. Visualize the data.
 
 Optional to Module 2
 1. Implement verification of drive data.
@@ -68,5 +69,8 @@ monitor everything.
 1. Implement hybrid, scalable solution that automatically switches between Pandas (for small files) and PySpark (for large files).
 2. Create a global config file contains module based configs. (need to check preferred option b/w single vs multiple configs).
 3. Pull bootstrap_logger so we have all the logs at a single place.
+4. Enhance Logs structure.
 
 * Current issues -
+1. Could ignore folder entries or filter out.
+2. Logs get override on each run, append current day logs and create a new file on daily basis.

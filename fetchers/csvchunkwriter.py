@@ -44,9 +44,6 @@ class CSVChunkWriter:
 
     def _safe_write_dataframe(self, df: pd.DataFrame):
         """Write df to tmp file then append/concat to final atomically."""
-        # Decide header logic
-        # header = self.cfg.write_header and (not self.header_written_in_this_file)
-        # header = True
         header = not os.path.exists(self.final_path)  # Write header only once
         os.makedirs(os.path.dirname(self.final_path), exist_ok=True)
         try:
@@ -93,11 +90,32 @@ class CSVChunkWriter:
         #         except Exception:
         #             pass
 
-    def write_chunk(self, rows: List[Dict]):
+    def write_chunk(self, rows: List[Dict], driveSchema: []):
         if not rows:
             return
 
         df = pd.DataFrame(rows)
+        missing_cols = [c for c in driveSchema if c not in df.columns]
+        for col in missing_cols:
+            df[col] = pd.NA
+
+        #  Detect unexpected new columns (added by API)
+        new_cols = [c for c in df.columns if c not in driveSchema]
+        if new_cols:
+            self.logger.warning(f"⚠️ New columns detected: {new_cols}")
+            final_columns = driveSchema + new_cols
+        else:
+            final_columns = driveSchema
+
+        df = df.reindex(columns=final_columns)
+
+        if "createdTime" in df.columns:
+            df["data_date"] = pd.to_datetime(
+                df["createdTime"], errors="coerce", utc=True
+            ).dt.date
+        else:
+            df["data_date"] = pd.NaT
+
         # Permission-safe retries
         for attempt in range(1, self.cfg.permission_retries + 1):
             try:
