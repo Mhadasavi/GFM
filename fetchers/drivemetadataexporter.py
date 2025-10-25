@@ -55,7 +55,7 @@ class DriveMetaDataExporter:
         self.writer = CSVChunkWriter(cfg, logger)
         self.rate = RateLimiter(cfg.quota_sleep_sec)
         self.credentials = credentials
-        self.fetcher = DriveFetcher(credentials, cfg, logger, self.rate)
+        self.fetcher = DriveFetcher(credentials, cfg, self.rate)
 
     # def meta_data_writer(self):
     #     return self.scanner.scan()
@@ -145,7 +145,8 @@ class DriveMetaDataExporter:
 
             # Write-after-every-page (stream)
             if files:
-                self.writer.write_chunk(files)
+                drive_schema = self.cfg.drive_expected_columns
+                self.writer.write_chunk(files, drive_schema)
                 last_written_id = files[-1].get("id")
             else:
                 last_written_id = last_id  # no progress on this page

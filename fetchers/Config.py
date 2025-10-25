@@ -44,3 +44,17 @@ class DownloaderConfig:
 
     # Logging
     log_every_n_pages: int = 1  # info log frequency
+
+    # Schema
+    drive_expected_columns = [
+        "id",
+        "name",
+        "mimeType",
+        "webViewLink",
+        "createdTime",
+        "modifiedTime",
+        "originalFilename",
+        "fileExtension",
+        "size",
+        "data_date",
+    ]
