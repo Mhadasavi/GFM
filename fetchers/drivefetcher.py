@@ -18,7 +18,7 @@ class DriveFetcher:
         self,
         credentials: Credentials,
         cfg: DownloaderConfig,
-        logger: logging.Logger,
+        # logger: logging.Logger,
         rate: RateLimiter,
     ):
         self.service = build("drive", "v3", credentials=credentials)
