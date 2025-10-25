@@ -30,21 +30,29 @@ Optional to Module 1
     Done
 7. Save logs to txt file
 8. Configure https://github.com/marketplace/actions/ai-pr-review-action (need more research)
+9. Store duplicate records in a file (explore MasterFileScanner)
+10. Maintain Created date datetype.
 
 Module 2
 1. Establish connection from GDrive.
     Done
+
 2. Get Metadata of drive's files and store in a new csv file.
     Done
+
 3. Implement step 2 & 3 of module 1.
     Done
+
 4. Compare both the csvs and add the duplicates into the new csv file.
+
 5. Delete the duplicates from drive.
+
 6. Visulalize the data.
 
 Optional to Module 2
 1. Implement verification of drive data.
     Done
+2. Maintain Created date datetype.
 
 Module 3
 1. Create a data pipeline with following tools -
@@ -56,6 +64,9 @@ Module 3
 Note - Test Module 1 & 2 on limited files and trigger the flow once module 3 completed. So that we can leverage everything and
 monitor everything.
 
+* FUTURE ENHANCEMENTS
+1. Implement hybrid, scalable solution that automatically switches between Pandas (for small files) and PySpark (for large files).
+2. Create a global config file contains module based configs. (need to check preferred option b/w single vs multiple configs).
+3. Pull bootstrap_logger so we have all the logs at a single place.
+
 * Current issues -
-1. header is not working in current implementation.
-2. custom columns need to add.
