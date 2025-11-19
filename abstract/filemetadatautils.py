@@ -8,6 +8,8 @@ import re
 from datetime import datetime
 from typing import Optional, Tuple
 
+import pandas as pd
+
 from fetchers import Config
 
 
@@ -21,8 +23,32 @@ class FileMetaDataUtils:
         "bmp": "img",
     }
 
+    def extract_size_and_unit_series(size_series: pd.Series):
+        # convert bytes → string sizes
+        size_str = size_series.apply(FileMetaDataUtils.convert_size)
+
+        # extract numeric part
+        numeric = size_str.str.extract(r"([0-9.]+)")[0].astype(float)
+
+        # extract unit
+        unit = size_str.str.extract(r"([A-Za-z]+)")[0]
+
+        return numeric, unit
+
+    @staticmethod
+    def extract_size_and_unit(size):
+        if pd.isnull(size):
+            return 0.00, ""
+        size_str = FileMetaDataUtils.convert_size(int(size))
+        return float(size_str[:-2]), size_str[-2:]
+
     @staticmethod
     def convert_size(size_bytes):
+        try:
+            size_bytes = int(size_bytes)
+        except (TypeError, ValueError):
+            return "0Bytes"
+
         for unit in ["Bytes", "KB", "MB", "GB", "TB"]:
             if size_bytes < 1024:
                 return f"{size_bytes:.2f}{unit}"

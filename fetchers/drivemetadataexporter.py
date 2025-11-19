@@ -144,17 +144,20 @@ class DriveMetaDataExporter:
                     continue
 
             # Write-after-every-page (stream)
-            if files:
-                drive_schema = self.cfg.drive_expected_columns
-                self.writer.write_chunk(files, drive_schema)
-                last_written_id = files[-1].get("id")
-            else:
-                last_written_id = last_id  # no progress on this page
-
-            # Save checkpoint *after* each write to minimize data loss
-            self._save_checkpoint_safely(
-                last_id=last_written_id, page_token=resp.get("nextPageToken")
-            )
+            try:
+                if files:
+                    last_written_id = files[-1].get("id")
+                    drive_schema = self.cfg.drive_expected_columns
+                    self.writer.write_chunk(files, drive_schema)
+                else:
+                    last_written_id = last_id  # no progress on this page
+            except ValueError:
+                self.logger.error("❌ Something went wrong while writing")
+            finally:
+                # Save checkpoint *after* each write to minimize data loss
+                self._save_checkpoint_safely(
+                    last_id=last_written_id, page_token=resp.get("nextPageToken")
+                )
 
             if page_counter % self.cfg.log_every_n_pages == 0:
                 self.logger.info(
@@ -181,7 +184,7 @@ class DriveMetaDataExporter:
         self.logger.info(f"Total rows in CSV: {len(csv_ids)}")
 
         if missing:
-            self.logger.warning(f"⚠️ Missing {len(missing)} files not present in CSV.")
+            self.logger.warning(f"⚠️ Missing {len(missing)} rows not present in CSV.")
             self._write_diff_to_file(self.cfg.missing_ids, missing)
 
         if extra:

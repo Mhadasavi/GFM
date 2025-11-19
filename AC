@@ -74,3 +74,5 @@ monitor everything.
 * Current issues -
 1. Could ignore folder entries or filter out.
 2. Logs get override on each run, append current day logs and create a new file on daily basis.
+3. extract date in a separate column and maintain size consistency - Done
+4. checkpoint is not working as expected.
