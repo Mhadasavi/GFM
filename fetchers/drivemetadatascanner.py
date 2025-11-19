@@ -26,12 +26,12 @@ class DriveMetaDataScanner:
     #     self.rate = RateLimiter(cfg.quota_sleep_sec)
     #     self.fetcher = DriveFetcher(service, cfg, logger, self.rate)
 
-    @staticmethod
-    def extract_size_and_unit(size):
-        if pd.isnull(size):
-            return 0.00, ""
-        size_str = FileMetaDataUtils.convert_size(int(size))
-        return float(size_str[:-2]), size_str[-2:]
+    # @staticmethod
+    # def extract_size_and_unit(size):
+    #     if pd.isnull(size):
+    #         return 0.00, ""
+    #     size_str = FileMetaDataUtils.convert_size(int(size))
+    #     return float(size_str[:-2]), size_str[-2:]
 
     # def _discover_resume_points(self) -> Tuple[Optional[str], Optional[str], int]:
     #     cp = self.cp.load()
@@ -98,9 +98,9 @@ class DriveMetaDataScanner:
         # df['unit'] = df['new_size'].apply(lambda x:str(x)[-2:])
 
         # Extract size and unit in one pass
-        df[["new_size", "unit"]] = df["size"].apply(
-            lambda x: pd.Series(self.extract_size_and_unit(x))
-        )
+        # df[["new_size", "unit"]] = df["size"].apply(
+        #     lambda x: pd.Series(self.extract_size_and_unit(x))
+        # )
 
         hash_fields = [
             "id",

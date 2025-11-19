@@ -116,6 +116,10 @@ class CSVChunkWriter:
         else:
             df["data_date"] = pd.NaT
 
+        df["new_size"], df["unit"] = FileMetaDataUtils.extract_size_and_unit_series(
+            df["size"]
+        )
+
         # Permission-safe retries
         for attempt in range(1, self.cfg.permission_retries + 1):
             try:
