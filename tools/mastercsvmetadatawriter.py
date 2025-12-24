@@ -22,6 +22,7 @@ class MasterCsvMetaDataWriter(MetaDataWriter):
         try:
             # Get headers from the first nested dict
             headers = list(next(iter(data.values())).keys())
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "a", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=headers)
                 file_exists = os.path.exists(output_path)

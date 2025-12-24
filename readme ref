@@ -1,0 +1,11 @@
+Entry point Run.py
+
+
+Run one stage	--stage local_raw_fetch
+Run full pipeline	--stage all
+ex : python run.py --stage gdrive_fetch
+
+Log file:
+output/logs/gdrive_fetch_2025-12-14.log
+output/logs/all_2025-12-14.log
+
