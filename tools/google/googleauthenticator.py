@@ -27,6 +27,10 @@ class GoogleAuthenticator:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
+                if not os.path.exists(self.credentials_path):
+                    raise Exception(
+                        "Missing client.json. See README for Google OAuth setup instructions."
+                    )
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.credentials_path, self.scopes
                 )

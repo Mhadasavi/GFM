@@ -6,11 +6,6 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from abstract.filemetadatautils import FileMetaDataUtils
-from fetchers import Config
-from fetchers.checkpointmanager import CheckpointManager
-from fetchers.csvchunkwriter import CSVChunkWriter
-from fetchers.drivefetcher import DriveFetcher
-from fetchers.ratelimiter import RateLimiter
 
 
 class DriveMetaDataScanner:

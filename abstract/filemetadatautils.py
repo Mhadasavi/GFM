@@ -5,12 +5,13 @@ import io
 import logging
 import os
 import re
+import sys
 from datetime import datetime
 from typing import Optional, Tuple
 
 import pandas as pd
 
-from fetchers import Config
+from Config.globalconfig import GlobalConfig
 
 
 class FileMetaDataUtils:
@@ -99,15 +100,15 @@ class FileMetaDataUtils:
         return datetime.now().strftime("%Y-%m-%d")
 
     @staticmethod
-    def make_base_stem(cfg: Config) -> str:
+    def make_base_stem(cfg: GlobalConfig) -> str:
         date_part = f"_{FileMetaDataUtils.today_str()}" if cfg.daily_naming else ""
         return f"{cfg.base_filename}{date_part}"
 
-    def with_batch_name(cfg: Config, batch_index: int) -> str:
+    def with_batch_name(cfg: GlobalConfig, batch_index: int) -> str:
         stem = FileMetaDataUtils.make_base_stem(cfg)
         return f"{stem}_batch{batch_index}.csv"
 
-    def make_paths(cfg: Config, batch_index: int) -> Tuple[str, str]:
+    def make_paths(cfg: GlobalConfig, batch_index: int) -> Tuple[str, str]:
         """
         Returns (final_path, temp_path).
         Applies compression if enabled.
@@ -153,3 +154,31 @@ class FileMetaDataUtils:
         if not row:
             return None
         return row[0].strip() if row[0] else None
+
+    def bootstrap_logger(config: GlobalConfig) -> None:
+        root_logger = logging.getLogger()
+        root_logger.setLevel(logging.DEBUG)
+
+        # Avoid duplicate handlers if called twice
+        if root_logger.handlers:
+            return
+
+        # File handler (DEBUG+)
+        file_handler = logging.FileHandler(config.log_path, mode="w")
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter(
+            "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+            datefmt="%m-%d %H:%M",
+        )
+        file_handler.setFormatter(file_formatter)
+
+        # Console handler (INFO+)
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(logging.INFO)
+        console_formatter = logging.Formatter(
+            "%(name)-12s: %(levelname)-8s %(message)s"
+        )
+        console_handler.setFormatter(console_formatter)
+
+        root_logger.addHandler(file_handler)
+        root_logger.addHandler(console_handler)

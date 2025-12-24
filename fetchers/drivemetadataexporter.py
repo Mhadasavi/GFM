@@ -4,15 +4,12 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 from google.oauth2.credentials import Credentials
-from pandas import DataFrame
-from urllib3.filepost import writer
 
 from abstract.filemetadatautils import FileMetaDataUtils
 from abstract.metadatawriter import MetaDataWriter
-from feeds.csvmetadatawriter import CSVMetaDataWriter
+from Config.globalconfig import GlobalConfig
 from feeds.mongodbWriter import MongoDbWriter
 from fetchers.checkpointmanager import CheckpointManager
-from fetchers.Config import DownloaderConfig
 from fetchers.csvchunkwriter import CSVChunkWriter
 from fetchers.drivefetcher import DriveFetcher
 from fetchers.drivemetadatascanner import DriveMetaDataScanner
@@ -43,7 +40,7 @@ class DriveMetaDataExporter:
         meta_writer: MetaDataWriter,
         db_writer: MongoDbWriter,
         credentials: Credentials,
-        cfg: DownloaderConfig,
+        cfg: GlobalConfig,
         logger: logging.Logger,
     ):
         self.scanner = scanner
@@ -63,8 +60,8 @@ class DriveMetaDataExporter:
     # def export(self, drive_metadata_df: DataFrame, output_path: str):
     #     self.meta_writer.write_df_to_csv(drive_metadata_df, output_path)
 
-    # def export_to_db(self, input_path: str, collection_name: str):
-    #     self.db_writer.write(input_path, collection_name)
+    def export_to_db(self, input_path: str, collection_name: str):
+        self.db_writer.write(input_path, collection_name)
 
     def _discover_resume_points(self) -> Tuple[Optional[str], Optional[str], int]:
         cp = self.cp.load()
@@ -107,7 +104,7 @@ class DriveMetaDataExporter:
             batch_index=self.writer.get_batch_index(),
         )
 
-    def run(self):
+    def export_to_csv(self) -> str:
         last_id, page_token, batch_index = self._discover_resume_points()
 
         # Ensure writer batch matches checkpoint (e.g., after rotation).
@@ -148,11 +145,11 @@ class DriveMetaDataExporter:
                 if files:
                     last_written_id = files[-1].get("id")
                     drive_schema = self.cfg.drive_expected_columns
-                    self.writer.write_chunk(files, drive_schema)
+                    output_file_path = self.writer.write_chunk(files, drive_schema)
                 else:
                     last_written_id = last_id  # no progress on this page
             except ValueError:
-                self.logger.error("❌ Something went wrong while writing")
+                self.logger.error("Something went wrong while writing")
             finally:
                 # Save checkpoint *after* each write to minimize data loss
                 self._save_checkpoint_safely(
@@ -167,6 +164,7 @@ class DriveMetaDataExporter:
                 )
 
         self.logger.info("Download complete.")
+        return output_file_path
 
         # -----------------------------------------------------
         # ✅ Verification Logic
@@ -184,15 +182,15 @@ class DriveMetaDataExporter:
         self.logger.info(f"Total rows in CSV: {len(csv_ids)}")
 
         if missing:
-            self.logger.warning(f"⚠️ Missing {len(missing)} rows not present in CSV.")
+            self.logger.warning(f"Missing {len(missing)} rows not present in CSV.")
             self._write_diff_to_file(self.cfg.missing_ids, missing)
 
         if extra:
-            self.logger.warning(f"⚠️ {len(extra)} extra rows in CSV not found in Drive.")
+            self.logger.warning(f"{len(extra)} extra rows in CSV not found in Drive.")
             self._write_diff_to_file(self.cfg.extra_ids, extra)
 
         if not missing and not extra:
-            self.logger.info("✅ Verification successful — all files accounted for.")
+            self.logger.info("Verification successful — all files accounted for.")
 
     # @staticmethod
     def _compare_ids(self, api_ids, csv_ids):
@@ -208,51 +206,71 @@ class DriveMetaDataExporter:
         self.logger.info(f"Wrote diff file: {path}")
 
 
-def bootstrap_logger(config: DownloaderConfig):
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
-        datefmt="%m-%d %H:%M",
-        filename=config.log_path,
-        filemode="w",
-    )
+# def bootstrap_logger(config: DownloaderConfig):
+#     logging.basicConfig(
+#         level=logging.DEBUG,
+#         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+#         datefmt="%m-%d %H:%M",
+#         filename=config.log_path,
+#         filemode="w",
+#     )
 
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger("").addHandler(console)
+# # define a Handler which writes INFO messages or higher to the sys.stderr
+# console = logging.StreamHandler()
+# console.setLevel(logging.INFO)
+# # set a format which is simpler for console use
+# formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
+# # tell the handler to use this format
+# console.setFormatter(formatter)
+# # add the handler to the root logger
+# logging.getLogger("").addHandler(console)
+
+logger = logging.getLogger("stage.gdrive_fetch")
+
+
+def run():
+    start_time = time.time()
+
+    logger.info("Stage : gdrive_fetch started")
+
+    try:
+        config = GlobalConfig()
+
+        drive_creds = GoogleAuthenticator(
+            config.credentials_path, config.drive_scopes, port=8080
+        ).authenticate()
+        drive_scanner = DriveMetaDataScanner(
+            drive_creds
+        )  # remove this scanner dependency
+        writer = MasterCsvMetaDataWriter()
+        db_writer = MongoDbWriter()
+
+        exporter = DriveMetaDataExporter(
+            drive_scanner, writer, db_writer, drive_creds, config, None
+        )
+
+        file_name = f"drive_metadata.csv"
+        output_csv = os.path.join("F:\\GFM Data\\drivemetadata\\", file_name)
+        # drive_metadata_df = exporter.meta_data_writer()
+
+        # exporter.export(drive_metadata_df, output_csv)
+        output_csv = exporter.export_to_csv()
+        exporter.verify()
+        exporter.export_to_db(output_csv, "driveMetaDataCollection")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        logger.info(f"Completed in {elapsed_time:.2f} seconds")
+
+    except Exception:
+        logger.exception("gdrive_fetch failed")
+        raise
 
 
 if __name__ == "__main__":
+    from app_logging.logging_config import setup_logging
 
-    start_time = time.time()
-    config = DownloaderConfig()
-    bootstrap_logger(config)
-    drive_creds = GoogleAuthenticator(
-        config.credentials_path, config.drive_scopes, port=8080
-    ).authenticate()
-    drive_scanner = DriveMetaDataScanner(drive_creds)
-    writer = MasterCsvMetaDataWriter()
-    db_writer = MongoDbWriter()
+    config = GlobalConfig()
+    setup_logging("gdrive_fetch", config.log_path)
 
-    exporter = DriveMetaDataExporter(
-        drive_scanner, writer, db_writer, drive_creds, config, None
-    )
-
-    file_name = f"drive_metadata.csv"
-    output_csv = os.path.join("F:\\GFM Data\\drivemetadata\\", file_name)
-    # drive_metadata_df = exporter.meta_data_writer()
-
-    # exporter.export(drive_metadata_df, output_csv)
-    exporter.run()
-    exporter.verify()
-    # exporter.export_to_db(output_csv, "driveMetaDataCollection")
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Completed in {elapsed_time:.4f} seconds")
+    run()

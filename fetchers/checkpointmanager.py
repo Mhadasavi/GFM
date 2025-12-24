@@ -4,11 +4,11 @@ import os
 from typing import Dict, Optional
 
 from abstract.filemetadatautils import FileMetaDataUtils
-from fetchers.Config import DownloaderConfig
+from Config.globalconfig import GlobalConfig
 
 
 class CheckpointManager:
-    def __init__(self, cfg: DownloaderConfig, logger: logging.Logger):
+    def __init__(self, cfg: GlobalConfig, logger: logging.Logger):
         self.cfg = cfg
         self.logger = logging.getLogger(__name__)
         self.path = os.path.join(cfg.output_dir, cfg.checkpoint_filename)

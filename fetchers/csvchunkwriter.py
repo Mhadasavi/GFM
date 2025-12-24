@@ -11,7 +11,7 @@ from typing import Dict, List
 import pandas as pd
 
 from abstract.filemetadatautils import FileMetaDataUtils
-from fetchers.Config import DownloaderConfig
+from Config.globalconfig import GlobalConfig
 
 
 class CSVChunkWriter:
@@ -20,7 +20,7 @@ class CSVChunkWriter:
     Maintains header-per-file, rotation-by-size, and gzip (optional).
     """
 
-    def __init__(self, cfg: DownloaderConfig, logger: logging.Logger):
+    def __init__(self, cfg: GlobalConfig, logger: logging.Logger):
         self.cfg = cfg
         self.logger = logging.getLogger(__name__)
         self.batch_index = cfg.start_batch_index
@@ -90,7 +90,7 @@ class CSVChunkWriter:
         #         except Exception:
         #             pass
 
-    def write_chunk(self, rows: List[Dict], driveSchema: []):
+    def write_chunk(self, rows: List[Dict], driveSchema: []) -> None | str:
         if not rows:
             return
 
@@ -102,16 +102,16 @@ class CSVChunkWriter:
         #  Detect unexpected new columns (added by API)
         new_cols = [c for c in df.columns if c not in driveSchema]
         if new_cols:
-            self.logger.warning(f"⚠️ New columns detected: {new_cols}")
+            self.logger.warning(f"New columns detected: {new_cols}")
             final_columns = driveSchema + new_cols
         else:
             final_columns = driveSchema
 
         df = df.reindex(columns=final_columns)
 
-        if "createdTime" in df.columns:
+        if "modifiedTime" in df.columns:
             df["data_date"] = pd.to_datetime(
-                df["createdTime"], errors="coerce", utc=True
+                df["modifiedTime"], errors="coerce", utc=True
             ).dt.date
         else:
             df["data_date"] = pd.NaT
@@ -124,7 +124,8 @@ class CSVChunkWriter:
         for attempt in range(1, self.cfg.permission_retries + 1):
             try:
                 self._safe_write_dataframe(df)
-                break
+                return self.final_path
+
             except PermissionError:
                 self.logger.warning(
                     f"PermissionError while writing {self.final_path}. "

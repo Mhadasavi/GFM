@@ -28,6 +28,7 @@ class FileScanner:
                 created = format_time(stats.st_ctime)
                 modified = format_time(stats.st_mtime)
                 accessed = format_time(stats.st_atime)
+                data_date = datetime.fromtimestamp(stats.st_mtime).strftime("%m/%d/%Y")
                 hash_fields = [
                     file,
                     file_path,
@@ -36,6 +37,7 @@ class FileScanner:
                     created,
                     modified,
                     accessed,
+                    data_date,
                 ]
                 meta_row_id = FileMetaDataUtils.get_file_hash(hash_fields)
                 metadata = FileMetaData(
@@ -46,6 +48,7 @@ class FileScanner:
                     created,
                     modified,
                     accessed,
+                    data_date,
                     meta_row_id,
                 )
                 metadata_list.append(metadata)

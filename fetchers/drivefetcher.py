@@ -9,7 +9,7 @@ import pandas as pd
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-from fetchers.Config import DownloaderConfig
+from Config.globalconfig import GlobalConfig
 from fetchers.ratelimiter import RateLimiter
 
 
@@ -17,7 +17,7 @@ class DriveFetcher:
     def __init__(
         self,
         credentials: Credentials,
-        cfg: DownloaderConfig,
+        cfg: GlobalConfig,
         # logger: logging.Logger,
         rate: RateLimiter,
     ):

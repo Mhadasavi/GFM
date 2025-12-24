@@ -69,7 +69,7 @@ class CompareFeedsAndDrive:
         drive_input_path = (
             self.cfg.drive_metadata_dir
         )  # os.path.join(self.cfg.drive_metadata_dir, self.cfg.drive_metadata_csv)
-        drive_cols = ["name", "size", "fileExtension", "createdTime"]
+        drive_cols = ["name", "new_size", "fileExtension", "data_date"]
 
         master_df = self.read_metadata(master_input_path, master_cols)
         drive_df = self.read_metadata(drive_input_path, drive_cols)

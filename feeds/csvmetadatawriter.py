@@ -2,16 +2,22 @@ import csv
 import os
 from typing import List
 
+from pandas import DataFrame
+
 from abstract.filemetadata import FileMetaData
 from abstract.metadatawriter import MetaDataWriter
 
 
 class CSVMetaDataWriter(MetaDataWriter):
+    def write_df_to_csv(self, drive_metadata_df: DataFrame, output_path: str):
+        pass
+
     def write(self, data: List[FileMetaData], output_path: str):
         if not data:
             print("No data to write.")
             return
         try:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "a", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=data[0].to_dict().keys())
                 file_exists = os.path.exists(output_path)

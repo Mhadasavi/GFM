@@ -32,7 +32,7 @@ Optional to Module 1
     Done
 8. Configure https://github.com/marketplace/actions/ai-pr-review-action (need more research)
 9. Store duplicate records in a file (explore MasterFileScanner)
-10. Maintain Created date datetype.
+10. Maintain Created date datetype (this is equivalent to modified data date).
 
 Module 2
 1. Establish connection from GDrive.
@@ -53,7 +53,7 @@ Module 2
 Optional to Module 2
 1. Implement verification of drive data.
     Done
-2. Maintain Created date datetype.
+2. Maintain Created date datetype (this is equivalent to modified data date).
 
 Module 3
 1. Create a data pipeline with following tools -
@@ -70,9 +70,13 @@ monitor everything.
 2. Create a global config file contains module based configs. (need to check preferred option b/w single vs multiple configs).
 3. Pull bootstrap_logger so we have all the logs at a single place.
 4. Enhance Logs structure.
+5. Log Rotation
+6. Add execution timing decorators
+7. add local and prod input/output paths
 
 * Current issues -
 1. Could ignore folder entries or filter out.
-2. Logs get override on each run, append current day logs and create a new file on daily basis.
+2. Logs get override on each run, append current day logs and create a new file on daily basis. - Done
 3. extract date in a separate column and maintain size consistency - Done
 4. checkpoint is not working as expected.
+5. Duplicate data when running feeds master multiple times.
